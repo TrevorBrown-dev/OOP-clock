@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.event.*;
 
 public class App {
+    public static boolean started;
 
     static boolean isInt(String d) {
         try {
@@ -16,6 +17,7 @@ public class App {
     }
 
     public static void main(String[] args) {
+
         int WIDTH = 600;
         int HEIGHT = 600;
 
@@ -75,6 +77,27 @@ public class App {
                 }
             }
         });
+        started = false;
+        JButton Start = new JButton("Start");
+        Start.setPreferredSize(new Dimension(100, 50));
+        Start.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                started = !started;
+            }
+        });
+
+        JButton Reset = new JButton("Reset");
+        Reset.setPreferredSize(new Dimension(100, 50));
+        Reset.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                shape.setHour(0);
+                shape.setMinute(0);
+                shape.setSecond(0);
+                label.repaint();
+            }
+        });
 
         JPanel test = new JPanel();
         test.setLayout(new FlowLayout());
@@ -84,12 +107,45 @@ public class App {
         test.add(mButton);
         test.add(sField);
         test.add(sButton);
+        test.add(Start);
+        test.add(Reset);
+        ActionListener taskPerformer = new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                if (started) {
+                    int second = shape.getSecond();
+                    int minute = shape.getMinutes();
+                    int hour = shape.getHours();
+                    label.repaint();
+                    shape.setSecond(shape.getSecond() + 1);
+                    if (second > 59) {
+                        shape.setSecond(0);
+                        shape.setMinute(minute + 1);
+                    }
+
+                    if (minute > 59) {
+                        shape.setMinute(0);
+                        shape.setHour(hour + 1);
+                    }
+
+                    if (hour > 11) {
+                        shape.setHour(0);
+                    }
+
+                    label.repaint();
+
+                }
+
+            }
+        };
+        Timer t = new Timer(1000, taskPerformer);
 
         frame.add(test);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setSize(WIDTH + 200, HEIGHT + 200);
         frame.setVisible(true);
+
+        t.start();
     }
 }
 
@@ -98,12 +154,16 @@ class Clock implements Moveable {
     private int y;
     private int width;
 
+    private int seconds;
+    private int minutes;
+    private int hours;
     private int hAngle;
     private int mAngle;
     private int sAngle;
     private static int NOON = -90;
 
     public Clock(int x, int y, int width) {
+
         mAngle = 0;
         hAngle = 0;
         sAngle = 0;
@@ -113,15 +173,30 @@ class Clock implements Moveable {
     }
 
     public void setSecond(int second) {
-        sAngle = (6 * second) + NOON;
+        this.seconds = second;
+        sAngle = (6 * this.seconds) + NOON;
+    }
+
+    public int getSecond() {
+        return seconds;
+    }
+
+    public int getMinutes() {
+        return minutes;
+    }
+
+    public int getHours() {
+        return hours;
     }
 
     public void setMinute(int minute) {
-        mAngle = (6 * minute) + NOON;
+        this.minutes = minute;
+        mAngle = (6 * this.minutes) + NOON;
     }
 
     public void setHour(int hour) {
-        hAngle = (30 * hour) + NOON;
+        this.hours = hour;
+        hAngle = (30 * this.hours) + NOON;
 
     }
 
